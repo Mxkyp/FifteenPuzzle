@@ -14,6 +14,3 @@ def checkProgramCall():
         print(
             "Usage: python fifteenPuzzle.py <bfs/dfs/astr> <permutations of LURD/hamm/manh>**"
         )
-
-
-checkProgramCall()
