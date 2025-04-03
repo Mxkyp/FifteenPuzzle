@@ -1,4 +1,5 @@
 from typing import List, Tuple, Optional
+import copy
 
 
 class Puzzle:
@@ -94,3 +95,44 @@ class Puzzle:
             moves.append("D")
 
         return moves
+
+    def makeMove(self, move: str) -> Optional['Puzzle']:  # Wykonuje ruch i zwraca nową planszę
+        newBoard = copy.deepcopy(self)
+        row, col = newBoard.zeroPos
+
+        if move == 'L':
+            if col > 0:
+                newBoard.board[row][col] = newBoard.board[row][col - 1]
+                newBoard.board[row][col - 1] = 0
+                newBoard.zeroPos = (row, col - 1)
+                return newBoard
+
+        elif move == 'R':
+            if col < self.colNr - 1:
+                newBoard.board[row][col] = newBoard.board[row][col + 1]
+                newBoard.board[row][col + 1] = 0
+                newBoard.zeroPos = (row, col + 1)
+                return newBoard
+
+        elif move == 'U':
+            if row > 0:
+                newBoard.board[row][col] = newBoard.board[row - 1][col]
+                newBoard.board[row - 1][col] = 0
+                newBoard.zeroPos = (row - 1, col)
+                return newBoard
+
+        elif move == 'D':
+            if row < self.rowNr - 1:
+                newBoard.board[row][col] = newBoard.board[row + 1][col]
+                newBoard.board[row + 1][col] = 0
+                newBoard.zeroPos = (row + 1, col)
+                return newBoard
+
+        return None
+
+    def getBoardHash(self) -> tuple[tuple[int, ...], ...]: # Generuje unikalny hash dla danego stanu planszy
+        return tuple(tuple(row) for row in self.board)
+
+    def printBoard(self) -> None: # Wypisuje aktualny stan planszy
+        for row in self.board:
+            print(" ".join(map(str, row)))
