@@ -16,21 +16,30 @@ class Solver:
     solResultsFileName = sys.argv[5]
 
 
-def readPuzzle(fileName: str, board: Puzzle):
+def readPuzzle(fileName: str, puzzle: Puzzle):
     with open(fileName) as f:
-        puzzleSize = f.readline().split(" ")
-        board.rowNr = int(puzzleSize[0])
-        board.colNr = int(puzzleSize[1])
+        # the first line contains the board size
+        puzzleSize = f.readline().replace(" ", "")
+        puzzle.rowNr = int(puzzleSize[0])
+        puzzle.colNr = int(puzzleSize[1])
 
-        elements = f.readline().split(" ")
+        # read values in each row (strip '\n' and omit whitespaces)
+        elements = f.readline().strip().replace(" ", "")
+
         while elements:
-            pass
+            # turn an list of strings ex. ["1" ,"2" ,"3"] into an list of ints [1,2,3]
+            print(elements)
+            elementVal = list(map(int, elements))
+            puzzle.board.append(elementVal)
+            elements = f.readline().strip().replace(" ", "")
 
 
 def main():
     checkProgramCall()
     solver = Solver()
-    readPuzzle(solver.puzzleFileName)
+    puzzle = Puzzle()
+    readPuzzle(solver.puzzleFileName, puzzle)
+    print(puzzle.board)
 
 
 main()
