@@ -7,6 +7,21 @@ class Puzzle:
     rowNr = 0
     colNr = 0
 
+    def read(self, fileName: str):
+        with open(fileName) as f:
+            # the first line contains the board size
+            puzzleSize = f.readline().replace(" ", "")
+            self.rowNr = int(puzzleSize[0])
+            self.colNr = int(puzzleSize[1])
+
+            # read values in each row (strip '\n' and omit whitespaces)
+            elements = f.readline().strip().replace(" ", "")
+
+            while elements:
+                elementVal = list(map(int, elements))
+                self.board.append(elementVal)
+                elements = f.readline().strip().replace(" ", "")
+
 
 class Solver:
     strategy = sys.argv[1]
@@ -16,30 +31,12 @@ class Solver:
     solResultsFileName = sys.argv[5]
 
 
-def readPuzzle(fileName: str, puzzle: Puzzle):
-    with open(fileName) as f:
-        # the first line contains the board size
-        puzzleSize = f.readline().replace(" ", "")
-        puzzle.rowNr = int(puzzleSize[0])
-        puzzle.colNr = int(puzzleSize[1])
-
-        # read values in each row (strip '\n' and omit whitespaces)
-        elements = f.readline().strip().replace(" ", "")
-
-        while elements:
-            # turn an list of strings ex. ["1" ,"2" ,"3"] into an list of ints [1,2,3]
-            print(elements)
-            elementVal = list(map(int, elements))
-            puzzle.board.append(elementVal)
-            elements = f.readline().strip().replace(" ", "")
-
-
 def main():
     checkProgramCall()
     solver = Solver()
     puzzle = Puzzle()
-    readPuzzle(solver.puzzleFileName, puzzle)
-    print(puzzle.board)
+
+    puzzle.read(solver.puzzleFileName)
 
 
 main()
