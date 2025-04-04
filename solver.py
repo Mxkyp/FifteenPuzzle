@@ -5,10 +5,13 @@ from puzzle import Puzzle
 
 class Solver:
     strategy = sys.argv[1]
-    strategy_options = sys.argv[2]
+    strategy_options = list(sys.argv[2])  # ex 'L' 'U' 'R' 'D'
     puzzleFileName = sys.argv[3]
     solutionFileName = sys.argv[4]
     solResultsFileName = sys.argv[5]
+
+    def bfs(self, puzzle: Puzzle) -> Puzzle:
+        return puzzle
 
 
 def main():
