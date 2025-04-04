@@ -1,6 +1,10 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 413ukladow/
+./runprog.sh
+./runval.sh
+./extdata.sh
+
 *.py[cod]
 *$py.class
 
