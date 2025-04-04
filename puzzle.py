@@ -8,7 +8,7 @@ class Puzzle:
     ) -> None:
         self.visitedStates: int = 0
         self.processedStates: int = 0
-        self.max_recursionDepth: int = 0
+        self.max_recursionDepth: int = 20
         self.recursionDepth = 0
         self.solutionLength: int = 0
         self.computationTime: float = 0.0
