@@ -27,14 +27,16 @@ class Solver:
                 current_puzzle.solutionSteps = moves
                 return current_puzzle
 
-            # Explore all possible moves
-            for move in current_puzzle.getPossibleMoves():
-                new_puzzle = current_puzzle.makeMove(move)
-                new_state = self.to_tuple(new_puzzle.board)
+            # Explore moves in specified order
+            possible_moves = current_puzzle.getPossibleMoves()
+            for move in self.strategy_options:
+                if move in possible_moves:
+                    new_puzzle = current_puzzle.makeMove(move)
+                    new_state = self.to_tuple(new_puzzle.board)
 
-                if new_state not in self.visited:
-                    self.visited.add(new_state)
-                    queue.append((new_puzzle, moves + [move]))
+                    if new_state not in self.visited:
+                        self.visited.add(new_state)
+                        queue.append((new_puzzle, moves + [move]))
 
         return None  # No solution found (shouldn't happen for solvable puzzles)
 
@@ -57,16 +59,16 @@ class Solver:
                 solved_puzzle.solutionSteps = moves
                 return solved_puzzle  # ✅ Return solved puzzle
 
-            # Explore moves in DFS order (reversed for proper LIFO processing)
-            for move in reversed(current_puzzle.getPossibleMoves()):
-                new_puzzle = current_puzzle.makeMove(move)
-                new_state = self.to_tuple(new_puzzle.board)
+            # Explore moves in order from strategy_options (reverse for DFS stack)
+            possible_moves = current_puzzle.getPossibleMoves()
+            for move in reversed(self.strategy_options):
+                if move in possible_moves:
+                    new_puzzle = current_puzzle.makeMove(move)
+                    new_state = self.to_tuple(new_puzzle.board)
 
-                if new_state not in self.visited:
-                    self.visited.add(new_state)
-                    stack.append(
-                        (new_puzzle, moves + [move], depth + 1)
-                    )  # Increase depth
+                    if new_state not in self.visited:
+                        self.visited.add(new_state)
+                        stack.append((new_puzzle, moves + [move], depth + 1))
 
         return None  # No solution found (shouldn't happen for solvable puzzles)
 
@@ -85,7 +87,6 @@ def main():
     if solver.strategy == "dfs":
         solved = solver.dfs(puzzle)
 
-    solved.printBoard()
     solved.save(solver.solutionFileName, solver.solResultsFileName)
 
 
