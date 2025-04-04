@@ -20,6 +20,14 @@
 
 Plik z układem początkowym
 
+Ponadto program ma generować dodatkowe informacje dotyczące przeprowadzonego procesu obliczeniowego, obejmujące:
+
+    długość znalezionego rozwiązania;
+    liczbę stanów odwiedzonych;
+    liczbę stanów przetworzonych;
+    maksymalną osiągniętą głębokość rekursji;
+    czas trwania procesu obliczeniowego.
+
 Jest to plik tekstowy, w którym liczba linii zależy od rozmiaru ramki. Pierwsza linia zawiera dwie liczby całkowite w oraz k, oddzielone od siebie spacją, które określają odpowiednio pionowy (liczbę wierszy) i poziomy (liczbę kolumn) rozmiar ramki. Każda z pozostałych w linii zawiera k oddzielonych spacjami liczb całkowitych, które opisują położenie poszczególnych elementów układanki, przy czym wartość 0 oznacza wolne pole.
 
 Plik z dodatkowymi informacjami
