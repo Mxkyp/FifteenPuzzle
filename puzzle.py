@@ -60,7 +60,7 @@ class Puzzle:
         with open(solResultsFileName, "w") as f:
             # checked states didn't find solution
             if self.solutionLength == 0 and self.visitedStates != 0:
-                f.write("-1")  # couldnt find solution
+                f.write("-1" + "\n")
             else:
                 f.write(str(self.solutionLength) + "\n")
 
