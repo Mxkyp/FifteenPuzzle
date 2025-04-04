@@ -9,6 +9,7 @@ class Puzzle:
         self.visitedStates: int = 0
         self.processedStates: int = 0
         self.max_recursionDepth: int = 0
+        self.recursionDepth = 0
         self.solutionLength: int = 0
         self.computationTime: float = 0.0
 
@@ -26,27 +27,39 @@ class Puzzle:
     def read(self, fileName: str):
         with open(fileName) as f:
             # the first line contains the board size
-            puzzleSize = f.readline().replace(" ", "")
+            puzzleSize = f.readline().strip().split()
             self.rowNr = int(puzzleSize[0])
             self.colNr = int(puzzleSize[1])
 
             # read values in each row (strip '\n' and omit whitespaces)
-            elements = f.readline().strip().replace(" ", "")
+            elements = f.readline().strip().split()
 
             while elements:
                 elementVal = list(map(int, elements))
                 self.board.append(elementVal)
-                elements = f.readline().strip().replace(" ", "")
+                elements = f.readline().strip().split()
 
     def save(self, solutionFileName: str, solResultsFileName: str):
-        with open(solutionFileName) as f:
+        with open(solutionFileName, "w") as f:
+            # checked states didn't find solution
+            if self.solutionLength == 0 and self.visitedStates != 0:
+                f.write("-1" + "\n")  # couldnt find solution
+            else:
+                f.write(str(self.solutionLength) + "\n")
+                for step in self.solutionSteps:
+                    f.write(step)
+
+        with open(solResultsFileName, "w") as f:
             # checked states didn't find solution
             if self.solutionLength == 0 and self.visitedStates != 0:
                 f.write("-1")  # couldnt find solution
             else:
                 f.write(str(self.solutionLength) + "\n")
-                for step in self.solutionSteps:
-                    f.write(step)
+
+            f.write(str(self.visitedStates) + "\n")
+            f.write(str(self.processedStates) + "\n")
+            f.write(str(self.recursionDepth) + "\n")
+            f.write(str(round(self.computationTime, 3)) + "\n")
 
     def initSolvedState(
         self, rowNr: int, colNr: int
@@ -96,32 +109,34 @@ class Puzzle:
 
         return moves
 
-    def makeMove(self, move: str) -> Optional['Puzzle']:  # Wykonuje ruch i zwraca nową planszę
+    def makeMove(
+        self, move: str
+    ) -> Optional["Puzzle"]:  # Wykonuje ruch i zwraca nową planszę
         newBoard = copy.deepcopy(self)
         row, col = newBoard.zeroPos
 
-        if move == 'L':
+        if move == "L":
             if col > 0:
                 newBoard.board[row][col] = newBoard.board[row][col - 1]
                 newBoard.board[row][col - 1] = 0
                 newBoard.zeroPos = (row, col - 1)
                 return newBoard
 
-        elif move == 'R':
+        elif move == "R":
             if col < self.colNr - 1:
                 newBoard.board[row][col] = newBoard.board[row][col + 1]
                 newBoard.board[row][col + 1] = 0
                 newBoard.zeroPos = (row, col + 1)
                 return newBoard
 
-        elif move == 'U':
+        elif move == "U":
             if row > 0:
                 newBoard.board[row][col] = newBoard.board[row - 1][col]
                 newBoard.board[row - 1][col] = 0
                 newBoard.zeroPos = (row - 1, col)
                 return newBoard
 
-        elif move == 'D':
+        elif move == "D":
             if row < self.rowNr - 1:
                 newBoard.board[row][col] = newBoard.board[row + 1][col]
                 newBoard.board[row + 1][col] = 0
@@ -130,9 +145,11 @@ class Puzzle:
 
         return None
 
-    def getBoardHash(self) -> tuple[tuple[int, ...], ...]: # Generuje unikalny hash dla danego stanu planszy
+    def getBoardHash(
+        self,
+    ) -> tuple[tuple[int, ...], ...]:  # Generuje unikalny hash dla danego stanu planszy
         return tuple(tuple(row) for row in self.board)
 
-    def printBoard(self) -> None: # Wypisuje aktualny stan planszy
+    def printBoard(self) -> None:  # Wypisuje aktualny stan planszy
         for row in self.board:
             print(" ".join(map(str, row)))
