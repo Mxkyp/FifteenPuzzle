@@ -21,6 +21,7 @@ class Puzzle:
 
         if filename:
             self.read(filename)
+            self.setZeroPos()
         else:
             self.initSolvedState(rows, cols)
 
@@ -38,6 +39,13 @@ class Puzzle:
                 elementVal = list(map(int, elements))
                 self.board.append(elementVal)
                 elements = f.readline().strip().split()
+
+    def setZeroPos(self):
+        for r in range(self.rowNr):
+            for c in range(self.colNr):
+                if self.board[r][c] == 0:
+                    self.zeroPos = (r, c)
+                    return
 
     def save(self, solutionFileName: str, solResultsFileName: str):
         with open(solutionFileName, "w") as f:
@@ -109,9 +117,7 @@ class Puzzle:
 
         return moves
 
-    def makeMove(
-        self, move: str
-    ) -> Optional["Puzzle"]:  # Wykonuje ruch i zwraca nową planszę
+    def makeMove(self, move: str):  # Wykonuje ruch i zwraca nową planszę
         newBoard = copy.deepcopy(self)
         row, col = newBoard.zeroPos
 
@@ -143,7 +149,41 @@ class Puzzle:
                 newBoard.zeroPos = (row + 1, col)
                 return newBoard
 
-        return None
+        return newBoard
+
+    def returnMove(self, move: str):  # Wykonuje ruch i zwraca nową planszę
+        newBoard = copy.deepcopy(self)
+        row, col = newBoard.zeroPos
+
+        if move == "L":
+            if col < self.colNr - 1:
+                newBoard.board[row][col] = newBoard.board[row][col + 1]
+                newBoard.board[row][col + 1] = 0
+                newBoard.zeroPos = (row, col + 1)
+                return newBoard
+
+        elif move == "R":
+            if col > 0:
+                newBoard.board[row][col] = newBoard.board[row][col - 1]
+                newBoard.board[row][col - 1] = 0
+                newBoard.zeroPos = (row, col - 1)
+                return newBoard
+
+        elif move == "U":
+            if row < self.rowNr - 1:
+                newBoard.board[row][col] = newBoard.board[row + 1][col]
+                newBoard.board[row + 1][col] = 0
+                newBoard.zeroPos = (row + 1, col)
+                return newBoard
+
+        elif move == "D":
+            if row > 0:
+                newBoard.board[row][col] = newBoard.board[row - 1][col]
+                newBoard.board[row - 1][col] = 0
+                newBoard.zeroPos = (row - 1, col)
+                return newBoard
+
+        return newBoard
 
     def getBoardHash(
         self,
