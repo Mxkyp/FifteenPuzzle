@@ -14,16 +14,9 @@ class Solver:
 def main():
     checkProgramCall()
     solver = Solver()
-    puzzle = Puzzle()
+    puzzle = Puzzle(solver.puzzleFileName)
 
-    puzzle.read(solver.puzzleFileName)
     puzzle.printBoard()
-    puzzle.solutionLength = 5
-    puzzle.visitedStates = 4
-    puzzle.visitedStates = 2
-    puzzle.max_recursionDepth = 3
-    puzzle.computationTime = 3.5232
-    puzzle.save(solver.solutionFileName, solver.solResultsFileName)
 
 
 main()
