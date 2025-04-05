@@ -1,3 +1,4 @@
+import sys
 from typing import List, Tuple, Optional
 import copy
 
@@ -27,6 +28,10 @@ class Puzzle:
 
     def read(self, fileName: str):
         with open(fileName) as f:
+            firstLine = f.readline().strip()
+            if not firstLine:
+                print(f"Error: Imput file {fileName} is empty.")
+                sys.exit(1)
             # the first line contains the board size
             puzzleSize = f.readline().strip().split()
             self.rowNr = int(puzzleSize[0])
@@ -34,6 +39,9 @@ class Puzzle:
 
             # read values in each row (strip '\n' and omit whitespaces)
             elements = f.readline().strip().split()
+            if not elements:
+                print(f"Error: Imput file {fileName} contains no puzzle data.")
+                sys.exit(1)
 
             while elements:
                 elementVal = list(map(int, elements))
