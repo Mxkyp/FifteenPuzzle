@@ -79,9 +79,6 @@ class Solver:
 
         puzzle.computationTime = time.time() - start_time
 
-    def toTuple(self, board):
-        return tuple(tuple(row) for row in board)
-
     @staticmethod
     def toTuple(board):
         return tuple(tuple(row) for row in board)
@@ -99,6 +96,21 @@ class Solver:
 
                     if puzzle.board[i][j] != expectedValue:
                         distance += 1
+        return distance
+
+    @staticmethod
+    def distanceManhattan(puzzle) -> int:
+        """ Calculate Manhattan distance (number of misplaced tiles) """
+        distance: int = 0
+        for i in range(puzzle.rowNr):
+            for j in range(puzzle.colNr):
+                value: int = puzzle.board[i][j]
+                if value != 0:  # Skip the empty tile
+                    expectedRow: int = puzzle.rowNr - 1  # Calculate the expected position for this value
+                    expectedCol: int = puzzle.colNr - 1
+
+                    distance += abs(i - expectedRow) + abs(
+                        j - expectedCol)  # Calculate Manhattan distance for this tile
         return distance
 
     def astar(self, puzzle: Puzzle) -> None:
