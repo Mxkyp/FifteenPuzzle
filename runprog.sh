@@ -23,7 +23,7 @@
 #  progcmd='java -jar /home/user/15puzzle/bin/solver.jar' (executable JAR file)
 #  progcmd='python /home/user/15puzzle/bin/solver.py' (Python file)
 
-progcmd='python3 solver.py'
+progcmd='python3 ./solver.py'
 orders=(RDUL RDLU DRUL DRLU LUDR LURD ULDR ULRD)
 heuristics=(hamm manh)
 init_filename_regex='^[a-zA-Z0-9]+_[0-9]+_[0-9]+.txt$'
