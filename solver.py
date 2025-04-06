@@ -106,8 +106,8 @@ class Solver:
             for j in range(puzzle.colNr):
                 value: int = puzzle.board[i][j]
                 if value != 0:  # Skip the empty tile
-                    expectedRow: int = puzzle.rowNr - 1  # Calculate the expected position for this value
-                    expectedCol: int = puzzle.colNr - 1
+                    expectedRow: int = (value - 1) // puzzle.colNr  # Calculate the expected position for this value
+                    expectedCol: int = (value - 1) % puzzle.colNr
 
                     distance += abs(i - expectedRow) + abs(
                         j - expectedCol)  # Calculate Manhattan distance for this tile
