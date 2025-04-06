@@ -39,7 +39,11 @@ runprog()
             filename_root="${filename%.txt}_${1}_${2,,}"
             sol_filename="${filename_root}_sol.txt"
             stats_filename="${filename_root}_stats.txt"
-            $progcmd "$1" "$2" "$filename" "$sol_filename" "$stats_filename"
+            echo "Running: $progcmd $1 $2 $filename $sol_filename $stats_filename"
+            $progcmd "$1" "$2" "$filename" "$sol_filename" "$stats_filename" >> runprog.log 2>&1
+            if [[ $? -ne 0 ]]; then
+              echo "Error processing $filename with $1 $2" >&2
+            fi
         fi
     done
 }
