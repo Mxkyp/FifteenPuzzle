@@ -28,32 +28,52 @@ class Puzzle:
 
     def read(self, fileName: str):
         with open(fileName) as f:
-            firstLine = f.readline().strip()
-            if not firstLine:
-                print(f"Error: Imput file {fileName} is empty.")
+            # firstLine = f.readline().strip()
+            puzzleSize = f.readline().strip().split()
+            if not puzzleSize:
+                print(f"Error: Imput file {fileName} is empty or missing dimensions.")
                 sys.exit(1)
             # the first line contains the board size
-            puzzleSize = f.readline().strip().split()
             self.rowNr = int(puzzleSize[0])
             self.colNr = int(puzzleSize[1])
 
             # read values in each row (strip '\n' and omit whitespaces)
-            elements = f.readline().strip().split()
-            if not elements:
-                print(f"Error: Imput file {fileName} contains no puzzle data.")
-                sys.exit(1)
-
-            while elements:
+            self.board = []
+            for i in range(self.rowNr):
+                elements = f.readline().strip().split()
+                if not elements:
+                    print(f"Error: Imput file {fileName} has fewer rows than expected ({self.rowNr}).")
+                    sys.exit(1)
+                if len(elements) != self.colNr:
+                    print(f"Erroe: Row {i + 1} in {fileName} has {len(elements)} elements, expected {self.colNr}.")
+                    sys.exit(1)
                 elementVal = list(map(int, elements))
                 self.board.append(elementVal)
-                elements = f.readline().strip().split()
+
+            extraLine = f.readline().strip()
+            if extraLine:
+                print(f"Error: Input file {fileName} has more rows than expected ({self.rowNr}).")
+                sys.exit(1)
+
+            expectedValues = set(range(self.rowNr * self.colNr))
+            boardValues = set()
+            for row in self.board:
+                for value in row:
+                    boardValues.add(value)
+            if boardValues != expectedValues:
+                print(f"Error: Board values in {fileName} are invalid. Expected {expectedValues}, got {boardValues}")
+                sys.exit(1)
 
     def setZeroPos(self):
-        for r in range(self.rowNr):
-            for c in range(self.colNr):
+        if not self.board:
+            raise ValueError("Board is empty.")
+
+        for r in range(len(self.board)):
+            for c in range(len(self.board[r])):
                 if self.board[r][c] == 0:
                     self.zeroPos = (r, c)
                     return
+        raise ValueError("No empty tile (0) found on the board.")
 
     def save(self, solutionFileName: str, solResultsFileName: str):
         with open(solutionFileName, "w") as f:

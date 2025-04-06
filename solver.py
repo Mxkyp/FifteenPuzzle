@@ -8,7 +8,14 @@ import time
 
 class Solver:
     strategy = sys.argv[1]
-    strategy_options = list(sys.argv[2])  # ex 'L' 'U' 'R' 'D'
+
+    if strategy == "astr":
+        heuristic = sys.argv[2]
+        strategy_options = ["L", "U", "D", "R"]
+    else:
+        strategy_options = list(sys.argv[2])
+        heuristic = None
+
     puzzleFileName = sys.argv[3]
     solutionFileName = sys.argv[4]
     solResultsFileName = sys.argv[5]
@@ -109,8 +116,7 @@ class Solver:
                     expectedRow: int = (value - 1) // puzzle.colNr  # Calculate the expected position for this value
                     expectedCol: int = (value - 1) % puzzle.colNr
 
-                    distance += abs(i - expectedRow) + abs(
-                        j - expectedCol)  # Calculate Manhattan distance for this tile
+                    distance += abs(i - expectedRow) + abs(j - expectedCol)  # Calculate Manhattan distance for this tile
         return distance
 
     def astar(self, puzzle: Puzzle) -> None:
@@ -119,9 +125,12 @@ class Solver:
 
         openSet = PriorityQueue() # Priority queue for A* (fScore, moveCount, moves, puzzle)
 
-        heuristicFunction = (  # Choose the heuristic function
-            self.distanceHamming if self.strategy == "hamn" else self.distanceManhattan
-        )
+        if self.heuristic == "hamm":
+            heuristicFunction = self.distanceHamming
+        elif self.heuristic == "manh":
+            heuristicFunction = self.distanceManhattan
+        else:
+            raise ValueError(f"Unknown heuristic strategy: {self.heuristic}. Use 'hamm' or 'manh' instead. ")
 
         initialHScore = heuristicFunction(puzzle)
         initialStateTuple = self.toTuple(puzzle.board)
