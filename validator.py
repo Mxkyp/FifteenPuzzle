@@ -1,6 +1,7 @@
 from puzzle import Puzzle
 import sys
 
+
 class Validator:
     def __init__(self, imputFile: str, outputFile: str):
         self.imputFile = imputFile
@@ -37,16 +38,19 @@ class Validator:
             print(f"No moves provided in solution file.", file=sys.stderr)
             return False
 
-        moves = lines[1:]
+        moves = list(lines[1])
         if numMoves != len(moves):
-            print(f"Move count ({numMoves}) does not mach sequence length ({len(moves)})." , file=sys.stderr)
+            print(
+                f"Move count ({numMoves}) does not mach sequence length ({len(moves)}).",
+                file=sys.stderr,
+            )
             return False
 
         for move in moves:
             if move not in ["L", "R", "U", "D"]:
                 print(f"Invalid move {move}.", file=sys.stderr)
                 return False
-            if move not in puzzle.PossibleMoves():
+            if move not in puzzle.getPossibleMoves():
                 print(f"Move {move} is not possible in current state.", file=sys.stderr)
                 return False
             puzzle = puzzle.makeMove(move)
@@ -57,6 +61,7 @@ class Validator:
             print(f"Final board is not the goal state.", file=sys.stderr)
             return False
 
+
 def main():
     if len(sys.argv) != 3:
         print("Usage: python validator.py <inputFile> <outputFile>", file=sys.stderr)
@@ -66,10 +71,10 @@ def main():
     result = validator.validate()
     sys.exit(0 if result else 1)
 
+
 if __name__ == "__main__":
     main()
 
-#python3 validator.py input.txt bfs_solution.txt
-#echo $?
-#runval python3 validator.py input.txt bfs_solution.txt
-
+# python3 validator.py input.txt bfs_solution.txt
+# echo $?
+# runval python3 validator.py input.txt bfs_solution.txt
