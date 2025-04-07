@@ -50,23 +50,23 @@ class Solver:
         self.visited.add(self.toTuple(puzzle.board))                # Dodanie stanu początkowego do odwiedzonych
         puzzle.visitedStates = 1                                    # Licznik odwiedzonych stanów
 
-        while queue:
+        while queue:                                                # Dopóki kolejka nie jest pusta
             current_puzzle, moves = queue.popleft()
             puzzle.processedStates += 1
 
-            if current_puzzle.isGoal():
+            if current_puzzle.isGoal():                             # Sprawdzenie, czy to stan końcowy
                 puzzle.solutionSteps = moves
                 puzzle.solutionLength = len(moves)
                 puzzle.computationTime = time.time() - start_time
                 return
 
-            possible_moves = current_puzzle.getPossibleMoves()
+            possible_moves = current_puzzle.getPossibleMoves()      # Pobieranie możliwych ruchów w bieżącym stanie
             for move in self.strategyOptions:
                 if move in possible_moves:
                     new_puzzle = current_puzzle.makeMove(move)
                     new_state = self.toTuple(new_puzzle.board)
 
-                    if new_state not in self.visited:
+                    if new_state not in self.visited:               # Jeśli stan nie był wcześniej odwiedzony
                         self.visited.add(new_state)
                         puzzle.visitedStates += 1
                         queue.append((new_puzzle, moves + [move]))
@@ -91,33 +91,33 @@ class Solver:
         DFS może nie znaleźć najkrótszego rozwiązania, ale zużywa mniej pamięci niż BFS.
         Ograniczamy głębokość przeszukiwania do puzzle.max_recursionDepth, aby uniknąć nieskończonej rekursji.
        """
-        start_time = time.time()
-        stack = [(puzzle, [], 0)]  # (stan puzzla, lista ruchów, obecna głębokość)
-        self.visited.add(self.toTuple(puzzle.board))
-        puzzle.visitedStates = 1
-        puzzle.recursionDepth = 0
+        start_time = time.time()                                    # Rozpoczęcie pomiaru czasu
+        stack = [(puzzle, [], 0)]                                   # Stos dla DFS: (stan układanki, lista wykonanych ruchów, głębokość)
+        self.visited.add(self.toTuple(puzzle.board))                # Dodanie stanu początkowego do odwiedzonych
+        puzzle.visitedStates = 1                                    # Licznik odwiedzonych stanów
+        puzzle.recursionDepth = 0                                   # Inicjalizacja głębokości rekursji
 
-        while stack:
-            current_puzzle, moves, depth = stack.pop()
+        while stack:                                                # Dopóki stos nie jest pusty
+            current_puzzle, moves, depth = stack.pop()              # Pobieranie ostatniego elementu ze stosu (LIFO)
             puzzle.processedStates += 1
             puzzle.recursionDepth = max(puzzle.recursionDepth, depth)
 
-            if depth >= puzzle.max_recursionDepth:
+            if depth >= puzzle.max_recursionDepth:                  # Sprawdzenie ograniczenie głębokości
                 continue
 
-            if current_puzzle.isGoal():
+            if current_puzzle.isGoal():                             # Sprawdzenie, czy to stan końcowy
                 puzzle.solutionSteps = moves
                 puzzle.solutionLength = len(moves)
                 puzzle.computationTime = time.time() - start_time
                 return
 
-            possible_moves = current_puzzle.getPossibleMoves()
+            possible_moves = current_puzzle.getPossibleMoves()      # Pobieranie możliwych ruchów w bieżącym stanie
             for move in reversed(self.strategyOptions):
                 if move in possible_moves:
                     new_puzzle = current_puzzle.makeMove(move)
                     new_state = self.toTuple(new_puzzle.board)
 
-                    if new_state not in self.visited:
+                    if new_state not in self.visited:               # Jeśli stan nie był wcześniej odwiedzon
                         self.visited.add(new_state)
                         puzzle.visitedStates += 1
                         stack.append((new_puzzle, moves + [move], depth + 1))
@@ -157,7 +157,7 @@ class Solver:
         distance: int = 0
         for i in range(puzzle.rowNr):
             for j in range(puzzle.colNr):
-                if puzzle.board[i][j] != 0:                                         # Pomijamy puste pole (0)
+                if puzzle.board[i][j] != 0:                                         # Pominięcie pustego pola (0)
                     expectedValue: int = i * puzzle.colNr + j + 1                   # Obliczanie oczekiwanej wartość dla tej pozycji
                     if i == puzzle.rowNr - 1 and j == puzzle.colNr - 1:             # Uwzględnienie ostatniej pozycji (powinna być 0)
                         expectedValue = 0
@@ -172,19 +172,19 @@ class Solver:
         for i in range(puzzle.rowNr):
             for j in range(puzzle.colNr):
                 value: int = puzzle.board[i][j]
-                if value != 0:  # Skip the empty tile
-                    expectedRow: int = (value - 1) // puzzle.colNr  # Calculate the expected position for this value
-                    expectedCol: int = (value - 1) % puzzle.colNr
+                if value != 0:                                                      # Pominięcie pustego pola (0)
+                    expectedRow: int = (value - 1) // puzzle.colNr                  # Obliczenie oczekiwanego wiersza dla tej wartości
+                    expectedCol: int = (value - 1) % puzzle.colNr                   # Obliczenie oczekiwanej kolumny dla tej wartości
 
-                    distance += abs(i - expectedRow) + abs(j - expectedCol)  # Calculate Manhattan distance for this tile
+                    distance += abs(i - expectedRow) + abs(j - expectedCol)         # Dodanie odległości Manhattan (|x1-x2| + |y1-y2|) dla tego elementu
         return distance
 
     def astar(self, puzzle: Puzzle) -> None:
         """
-      Parametery:
-         - `puzzle`: obiekt z klasy Puzzle (we wstepnej pozycji)
+        Parametery:
+        - `puzzle`: obiekt z klasy Puzzle (we wstepnej pozycji)
 
-     Poniżsi członkowie 'puzzle' są ustawiani w metodzie
+        Poniżsi członkowie 'puzzle' są ustawiani w metodzie
          - `puzzle.visitedStates`: ilość stanów odwiedzonych
          - `puzzle.processedStates`: ilość stanów przetworzonych
          - `puzzle.solutionSteps`: lista kroków(znaków z zbioru {L,U,R,D}) podjętych do uzyskania rozwiązania
@@ -192,74 +192,83 @@ class Solver:
          - `puzzle.computationTime`: czas potrzebny do uzyskania rozwiązania.
          - `puzzle.recursionDepth`: maksymalna głebokość uzyskana przy poszukiwaniu rozwiązywania.
 
-     metoda wykorzystuje jedną z dwóch heurystyk możliwych w `self.heuristic`:
-     - `"hamm"`: heurystyka dystansu hamminga.
-     - `"manh"`: heurystyka dystansu Manhattan.
+        metoda wykorzystuje jedną z dwóch heurystyk możliwych w `self.heuristic`:
+        - `"hamm"`: heurystyka dystansu hamminga.
+        - `"manh"`: heurystyka dystansu Manhattan.
 
-     """
+        """
         startTime = time.time()
 
-        openSet = PriorityQueue() # Priority queue for A* (fScore, moveCount, moves, puzzle)
+        openSet = PriorityQueue()                                                   # Kolejka priorytetowa dla A* (fScore, moveCount, moves, puzzle)
 
+        # Wybór funkcji heurystycznej na podstawie argumentu
         if self.heuristic == "hamm":
-            heuristicFunction = self.distanceHamming
+            heuristicFunction = self.distanceHamming                                # Użycie odległości Hamminga
         elif self.heuristic == "manh":
-            heuristicFunction = self.distanceManhattan
+            heuristicFunction = self.distanceManhattan                              # Użycie odległości Manhattan
         else:
             raise ValueError(f"Unknown heuristic strategy: {self.heuristic}. Use 'hamm' or 'manh' instead. ")
 
-        initialHScore = heuristicFunction(puzzle)
-        initialStateTuple = self.toTuple(puzzle.board)
-        openSet.put((initialHScore, 0, [], puzzle)) # Initial state
+        initialHScore = heuristicFunction(puzzle)                                   # Obliczenie początkowej wartości heurystycznej
+        initialStateTuple = self.toTuple(puzzle.board)                              # Dodanie stanu początkowego do kolejki priorytetowej
+        openSet.put((initialHScore, 0, [], puzzle))                                 # Format: (fScore, gScore, lista ruchów, stan układanki)
 
-        visitedGScores = {initialStateTuple: 0} # Track visited states with their gScores (to avoid cycles)
+        visitedGScores = {initialStateTuple: 0}                                     # Słownik do śledzenia odwiedzonych stanów z ich gScore (koszt dotarcia do danego stanu od początku)
 
+        # Inicjalizacja liczników
         puzzle.visitedStates = 1
         puzzle.processedStates = 0
         puzzle.recursionDepth = 0
 
-        while not openSet.empty():
-            _, gScore, moves, currentPuzzle = openSet.get()  # Get the state with the lowest fScore
+        while not openSet.empty():                                                  # Dopóki kolejka priorytetowa nie jest pusta
+            _, gScore, moves, currentPuzzle = openSet.get()                         # Pobierz stan z najniższym fScore (koszt + heurystyka)
             puzzle.processedStates += 1
 
-            if currentPuzzle.isGoal(): # Check if the goal was reached
+            if currentPuzzle.isGoal():                                              # Sprawdzenie, czy to stan końcowy
                 puzzle.solutionSteps = moves
                 puzzle.solutionLength = len(moves)
                 puzzle.computationTime = time.time() - startTime
                 return
 
-            possibleMoves = currentPuzzle.getPossibleMoves() # Try all possible moves
+            possibleMoves = currentPuzzle.getPossibleMoves()                        # Pobranie możliwych ruchów w bieżącym stanie
             for move in possibleMoves:
                 newPuzzle = currentPuzzle.makeMove(move)
                 newState = self.toTuple(newPuzzle.board)
                 newGScore = gScore + 1
 
-                if newState in visitedGScores and visitedGScores[newState] <= newGScore: # Check if the state has been visited with a better path
+                # Sprawdzenie, czy stan był już odwiedzony z lepszym kosztem
+                if newState in visitedGScores and visitedGScores[newState] <= newGScore:
                     continue
 
-                visitedGScores[newState] = newGScore # Updated visited states
+                visitedGScores[newState] = newGScore                                # Zaktualizuj odwiedzone stany z ich kosztami
                 puzzle.visitedStates += 1
 
-                hScore = heuristicFunction(newPuzzle) # Calculate heuristic score for the new state
-                fScore = newGScore + hScore
+                hScore = heuristicFunction(newPuzzle)                               # Oblicz wartość heurystyczną dla nowego stanu
+                fScore = newGScore + hScore                                         # Całkowity koszt to koszt dotarcia + heurystyka (f = g + h)
 
-                puzzle.recursionDepth = max(puzzle.recursionDepth, newGScore) # Update recursion depth
+                puzzle.recursionDepth = max(puzzle.recursionDepth, newGScore)       # Aktualizuj maksymalną głębokość
 
-                openSet.put((fScore, newGScore, moves + [move], newPuzzle)) # Add to the priority queue
+                openSet.put((fScore, newGScore, moves + [move], newPuzzle))         # Dodaj do kolejki priorytetowej z nowym fScore
 
-        puzzle.computationTime = time.time() - startTime # No solution found
+        puzzle.computationTime = time.time() - startTime
 
 def main():
-    checkProgramCall()
-    solver = Solver()
-    puzzle = Puzzle(solver.puzzleFileName)
+    """
+    Główna funkcja programu.
+
+    Sprawdza poprawność argumentów wiersza poleceń, inicjalizuje solver i układankę,
+    uruchamia odpowiedni algorytm rozwiązujący, a następnie zapisuje wyniki.
+    """
+    checkProgramCall()  # Sprawdź poprawność argumentów programu
+    solver = Solver()  # Utwórz obiekt solvera
+    puzzle = Puzzle(solver.puzzleFileName)  # Wczytaj układankę z pliku
 
     if solver.strategy == "bfs":
-        solver.bfs(puzzle)
+        solver.bfs(puzzle)                                                          # Algorytm przeszukiwania wszerz
     elif solver.strategy == "dfs":
-        solver.dfs(puzzle)
+        solver.dfs(puzzle)                                                          # Algorytm przeszukiwania w głąb
     elif solver.strategy == "astr":
-        solver.astar(puzzle)
+        solver.astar(puzzle)                                                        # Algorytm A*
 
     puzzle.save(solver.solutionFileName, solver.solResultsFileName)
 
