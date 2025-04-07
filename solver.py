@@ -221,7 +221,7 @@ class Solver:
         puzzle.recursionDepth = 0
 
         while not openSet.empty():                                                  # Dopóki kolejka priorytetowa nie jest pusta
-            _, gScore, moves, currentPuzzle = openSet.get()                         # Pobierz stan z najniższym fScore (koszt + heurystyka)
+            _, gScore, moves, currentPuzzle = openSet.get()                         # Pobieranie stanu z najniższym fScore (koszt + heurystyka)
             puzzle.processedStates += 1
 
             if currentPuzzle.isGoal():                                              # Sprawdzenie, czy to stan końcowy
@@ -240,15 +240,15 @@ class Solver:
                 if newState in visitedGScores and visitedGScores[newState] <= newGScore:
                     continue
 
-                visitedGScores[newState] = newGScore                                # Zaktualizuj odwiedzone stany z ich kosztami
+                visitedGScores[newState] = newGScore                                # Zaktualizowanie odwiedzonych stanów z ich kosztami
                 puzzle.visitedStates += 1
 
-                hScore = heuristicFunction(newPuzzle)                               # Oblicz wartość heurystyczną dla nowego stanu
+                hScore = heuristicFunction(newPuzzle)                               # Obliczenie wartości heurystycznej dla nowego stanu
                 fScore = newGScore + hScore                                         # Całkowity koszt to koszt dotarcia + heurystyka (f = g + h)
 
-                puzzle.recursionDepth = max(puzzle.recursionDepth, newGScore)       # Aktualizuj maksymalną głębokość
+                puzzle.recursionDepth = max(puzzle.recursionDepth, newGScore)       # Zaktualizowanie maksymalnej głębokości
 
-                openSet.put((fScore, newGScore, moves + [move], newPuzzle))         # Dodaj do kolejki priorytetowej z nowym fScore
+                openSet.put((fScore, newGScore, moves + [move], newPuzzle))         # Dodanie do kolejki priorytetowej z nowym fScore
 
         puzzle.computationTime = time.time() - startTime
 
@@ -259,9 +259,9 @@ def main():
     Sprawdza poprawność argumentów wiersza poleceń, inicjalizuje solver i układankę,
     uruchamia odpowiedni algorytm rozwiązujący, a następnie zapisuje wyniki.
     """
-    checkProgramCall()  # Sprawdź poprawność argumentów programu
-    solver = Solver()  # Utwórz obiekt solvera
-    puzzle = Puzzle(solver.puzzleFileName)  # Wczytaj układankę z pliku
+    checkProgramCall()                                                              # Sprawdzenie poprawności argumentów programu
+    solver = Solver()                                                               # Utworzenie obiektu solvera
+    puzzle = Puzzle(solver.puzzleFileName)                                          # Wczytanie układanki z pliku
 
     if solver.strategy == "bfs":
         solver.bfs(puzzle)                                                          # Algorytm przeszukiwania wszerz
