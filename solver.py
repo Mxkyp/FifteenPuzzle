@@ -5,27 +5,50 @@ import sys
 from puzzle import Puzzle
 import time
 
-
+"""
+Klasa rozwiązująca układanke fifteen-puzzle
+"""
 class Solver:
-    strategy = sys.argv[1]
+    """
+    Klasa rozwiązująca układankę fifteen-puzzle (układanka 15 lub ogólnie puzzle N)
+    Implementuje trzy różne algorytmy przeszukiwania: BFS, DFS i A*
+    """
+    # Przetwarzanie argumentów wiersza poleceń
+    strategy = sys.argv[1]                                          # Pierwszy argument: strategia rozwiązywania (bfs, dfs, astr)
 
     if strategy == "astr":
-        heuristic = sys.argv[2]
-        strategy_options = ["L", "U", "D", "R"]
+        heuristic = sys.argv[2]                                     # Dla A* drugi argument to heurystyka (hamm lub manh)
+        strategyOptions = ["L", "U", "D", "R"]                      # Dla A* używamy stałej kolejności ruchów
     else:
-        strategy_options = list(sys.argv[2])
-        heuristic = None
+        strategyOptions = list(sys.argv[2])                         # Dla BFS/DFS drugi argument to kolejność ruchów (np. LUDR)
+        heuristic = None                                            # Dla BFS/DFS nie używamy heurystyki
 
-    puzzleFileName = sys.argv[3]
-    solutionFileName = sys.argv[4]
-    solResultsFileName = sys.argv[5]
-    visited = set()
+    # Nazwy plików z argumentów wiersza poleceń
+    puzzleFileName = sys.argv[3]                                    # Plik wejściowy z układanką
+    solutionFileName = sys.argv[4]                                  # Plik do zapisania rozwiązania
+    solResultsFileName = sys.argv[5]                                # Plik do zapisania statystyk rozwiązania
+    visited = set()                                                 # Zbiór odwiedzonych stanów planszy (zapobiega cyklom)
 
     def bfs(self, puzzle: Puzzle) -> None:
-        start_time = time.time()
-        queue = deque([(puzzle, [])])  # (current puzzle state, moves taken)
-        self.visited.add(self.toTuple(puzzle.board))
-        puzzle.visitedStates = 1
+        """
+        Algorytm przeszukiwania wszerz (Breadth-First Search) do rozwiązania układanki.
+
+        Parametry:
+         - `puzzle`: obiekt z klasy Puzzle (w początkowej pozycji)
+
+        Poniższe atrybuty obiektu 'puzzle' są aktualizowane przez metodę:
+         - `puzzle.visitedStates`: liczba stanów odwiedzonych w trakcie przeszukiwania
+         - `puzzle.processedStates`: liczba stanów przetworzonych (wyjętych z kolejki)
+         - `puzzle.solutionSteps`: lista kroków (znaków ze zbioru {L,U,R,D}) prowadzących do rozwiązania
+         - `puzzle.solutionLength`: liczba kroków potrzebnych do uzyskania rozwiązania
+         - `puzzle.computationTime`: czas potrzebny do znalezienia rozwiązania w sekundach
+
+        BFS gwarantuje znalezienie najkrótszego rozwiązania, ale może wymagać dużo pamięci.
+         """
+        start_time = time.time()                                    # Rozpoczęcie pomiaru czasu
+        queue = deque([(puzzle, [])])                               # Kolejka FIFO dla BFS: (stan układanki, lista wykonanych ruchów)
+        self.visited.add(self.toTuple(puzzle.board))                # Dodanie stanu początkowego do odwiedzonych
+        puzzle.visitedStates = 1                                    # Licznik odwiedzonych stanów
 
         while queue:
             current_puzzle, moves = queue.popleft()
@@ -38,7 +61,7 @@ class Solver:
                 return
 
             possible_moves = current_puzzle.getPossibleMoves()
-            for move in self.strategy_options:
+            for move in self.strategyOptions:
                 if move in possible_moves:
                     new_puzzle = current_puzzle.makeMove(move)
                     new_state = self.toTuple(new_puzzle.board)
@@ -51,10 +74,25 @@ class Solver:
         puzzle.computationTime = time.time() - start_time
 
     def dfs(self, puzzle: Puzzle) -> None:
-        """Solves the puzzle using Depth-First Search (DFS). Modifies the input puzzle directly."""
+        """
+        Algorytm przeszukiwania w głąb (Depth-First Search) do rozwiązania układanki.
 
+        Parametry:
+         - `puzzle`: obiekt z klasy Puzzle (w początkowej pozycji)
+
+        Poniższe atrybuty obiektu 'puzzle' są aktualizowane przez metodę:
+         - `puzzle.visitedStates`: liczba stanów odwiedzonych w trakcie przeszukiwania
+         - `puzzle.processedStates`: liczba stanów przetworzonych (wyjętych ze stosu)
+         - `puzzle.solutionSteps`: lista kroków (znaków ze zbioru {L,U,R,D}) prowadzących do rozwiązania
+         - `puzzle.solutionLength`: liczba kroków potrzebnych do uzyskania rozwiązania
+         - `puzzle.computationTime`: czas potrzebny do znalezienia rozwiązania w sekundach
+         - `puzzle.recursionDepth`: maksymalna głębokość osiągnięta podczas przeszukiwania
+
+        DFS może nie znaleźć najkrótszego rozwiązania, ale zużywa mniej pamięci niż BFS.
+        Ograniczamy głębokość przeszukiwania do puzzle.max_recursionDepth, aby uniknąć nieskończonej rekursji.
+       """
         start_time = time.time()
-        stack = [(puzzle, [], 0)]  # (puzzle state, move list, current depth)
+        stack = [(puzzle, [], 0)]  # (stan puzzla, lista ruchów, obecna głębokość)
         self.visited.add(self.toTuple(puzzle.board))
         puzzle.visitedStates = 1
         puzzle.recursionDepth = 0
@@ -74,7 +112,7 @@ class Solver:
                 return
 
             possible_moves = current_puzzle.getPossibleMoves()
-            for move in reversed(self.strategy_options):  # reversed for DFS
+            for move in reversed(self.strategyOptions):
                 if move in possible_moves:
                     new_puzzle = current_puzzle.makeMove(move)
                     new_state = self.toTuple(new_puzzle.board)
@@ -88,17 +126,40 @@ class Solver:
 
     @staticmethod
     def toTuple(board):
+        """
+        Konwertuje planszę (listę list) na krotkę krotek.
+
+        Parametry:
+        - `board`: plansza jako lista list
+
+        Zwraca:
+        - krotkę krotek reprezentującą planszę (do użycia jako klucz w zbiorach i słownikach)
+
+        Funkcja pomocnicza, ponieważ listy nie są haszowalne, a krotki tak.
+        Umożliwia to używanie planszy jako klucza w zbiorach i słownikach.
+        """
         return tuple(tuple(row) for row in board)
 
     @staticmethod
     def distanceHamming(puzzle) -> int:
-        """ Calculate Hamming distance (number of misplaced tiles) """
+        """
+        Oblicza odległość Hamminga dla układanki.
+
+        Parametry:
+         - `puzzle`: obiekt klasy Puzzle
+
+        Zwraca:
+         - liczbę elementów, które nie są na swoich docelowych pozycjach
+
+        Odległość Hamminga to liczba elementów, które nie są na swoich docelowych pozycjach.
+        Jest to prosta heurystyka do szacowania odległości od stanu końcowego.
+        """
         distance: int = 0
         for i in range(puzzle.rowNr):
             for j in range(puzzle.colNr):
-                if puzzle.board[i][j] != 0:  # Skip the empty tile
-                    expectedValue: int = i * puzzle.colNr + j + 1  # Calculate the expected position for this value
-                    if i == puzzle.rowNr - 1 and j == puzzle.colNr - 1:  # Account for the last position (should be 0)
+                if puzzle.board[i][j] != 0:                                         # Pomijamy puste pole (0)
+                    expectedValue: int = i * puzzle.colNr + j + 1                   # Obliczanie oczekiwanej wartość dla tej pozycji
+                    if i == puzzle.rowNr - 1 and j == puzzle.colNr - 1:             # Uwzględnienie ostatniej pozycji (powinna być 0)
                         expectedValue = 0
 
                     if puzzle.board[i][j] != expectedValue:
@@ -107,7 +168,6 @@ class Solver:
 
     @staticmethod
     def distanceManhattan(puzzle) -> int:
-        """ Calculate Manhattan distance (number of misplaced tiles) """
         distance: int = 0
         for i in range(puzzle.rowNr):
             for j in range(puzzle.colNr):
@@ -120,7 +180,23 @@ class Solver:
         return distance
 
     def astar(self, puzzle: Puzzle) -> None:
-        """ Solves the puzzle using A* algorithm with the specified heuristic """
+        """
+      Parametery:
+         - `puzzle`: obiekt z klasy Puzzle (we wstepnej pozycji)
+
+     Poniżsi członkowie 'puzzle' są ustawiani w metodzie
+         - `puzzle.visitedStates`: ilość stanów odwiedzonych
+         - `puzzle.processedStates`: ilość stanów przetworzonych
+         - `puzzle.solutionSteps`: lista kroków(znaków z zbioru {L,U,R,D}) podjętych do uzyskania rozwiązania
+         - `puzzle.solutionLength`: ilość kroków podjętych do uzyskania rozwiązania
+         - `puzzle.computationTime`: czas potrzebny do uzyskania rozwiązania.
+         - `puzzle.recursionDepth`: maksymalna głebokość uzyskana przy poszukiwaniu rozwiązywania.
+
+     metoda wykorzystuje jedną z dwóch heurystyk możliwych w `self.heuristic`:
+     - `"hamm"`: heurystyka dystansu hamminga.
+     - `"manh"`: heurystyka dystansu Manhattan.
+
+     """
         startTime = time.time()
 
         openSet = PriorityQueue() # Priority queue for A* (fScore, moveCount, moves, puzzle)
